@@ -40,10 +40,29 @@ def _join(a: str, b: str) -> str:
     return a + " " + b
 
 
+def merge_words(lines: list[Line]) -> list[Line]:
+    """Склеивает слова, которые модель нашла отдельными рамками, в одну строку."""
+    rows: list[Line] = []
+    for ln in sorted(lines, key=lambda l: l.box[0]):
+        x, y, w, h = ln.box
+        for i, row in enumerate(rows):
+            rx, ry, rw, rh = row.box
+            v_overlap = min(y + h, ry + rh) - max(y, ry)
+            gap = x - (rx + rw)
+            if v_overlap >= 0.5 * min(h, rh) and -0.3 * h < gap < 1.2 * max(h, rh):
+                nx, ny = min(rx, x), min(ry, y)
+                box = (nx, ny, max(rx + rw, x + w) - nx, max(ry + rh, y + h) - ny)
+                rows[i] = Line(_join(row.text, ln.text), box, min(row.score, ln.score))
+                break
+        else:
+            rows.append(ln)
+    return rows
+
+
 def group_lines(lines: list[Line]) -> list[Block]:
-    """Склеивает строки одного абзаца в блок (переводить удобнее целыми фразами)."""
+    """Склеивает слова в строки, а строки одного абзаца в блок (переводить удобнее целыми фразами)."""
     blocks: list[Block] = []
-    for ln in sorted(lines, key=lambda l: (l.box[1], l.box[0])):
+    for ln in sorted(merge_words(lines), key=lambda l: (l.box[1], l.box[0])):
         x, y, w, h = ln.box
         target = None
         for b in reversed(blocks):

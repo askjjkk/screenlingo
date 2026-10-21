@@ -35,7 +35,7 @@ class ResultPanel(QWidget):
         self.setStyleSheet(theme.PANEL_QSS)
         self.setFixedWidth(WIDTH)
 
-        card = QWidget(objectName="card")
+        card = self.card = QWidget(objectName="card")
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
         outer.addWidget(card)
@@ -107,6 +107,7 @@ class ResultPanel(QWidget):
         self.text.document().setTextWidth(WIDTH - 32)
         doc_h = int(self.text.document().size().height()) + 14
         self.text.setFixedHeight(max(40, min(240, doc_h)))
+        self.card.layout().activate()  # сначала внутренняя раскладка, потом внешняя: иначе размер устаревший
         self.layout().activate()
         self.resize(WIDTH, self.sizeHint().height())
 

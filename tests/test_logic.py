@@ -180,5 +180,19 @@ def test_group_lines_side_by_side_not_merged():
     assert len(group_lines(lines)) == 2
 
 
+def test_group_lines_joins_words_of_one_line():
+    # модель иногда отдаёт каждое слово отдельной рамкой, да ещё с разной высотой по y
+    words = [Line("key", (150, 12, 40, 22), 0.99), Line("Press", (10, 10, 70, 24), 0.99),
+             Line("any", (90, 11, 45, 23), 0.99), Line("to", (200, 10, 25, 24), 0.99),
+             Line("continue", (235, 12, 100, 22), 0.99)]
+    blocks = group_lines(words)
+    assert [b.text for b in blocks] == ["Press any key to continue"]
+
+
+def test_group_lines_keeps_far_columns_apart():
+    lines = [Line("Name", (10, 10, 60, 20), 1.0), Line("Level", (400, 10, 60, 20), 1.0)]
+    assert len(group_lines(lines)) == 2
+
+
 def test_group_lines_empty():
     assert group_lines([]) == []

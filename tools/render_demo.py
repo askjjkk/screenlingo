@@ -52,16 +52,32 @@ def main(out: Path):
     ov.place(QRect(0, 0, base.width, base.height))
     ov.set_result(arr, 1.0, blocks, tr)
     layer = ov.grab()
-    qimg = QImage(out / "before.png" if False else str(out / "before.png"))
+    qimg = QImage(str(out / "before.png"))
     p = QPainter(qimg)
     p.drawPixmap(-MARGIN, -MARGIN, layer)
     p.end()
     qimg.save(str(out / "after.png"))
 
     panel = ResultPanel("ru")
-    panel.set_result(Result(blocks, tr))
-    panel.adjustSize()
+    panel.show()  # размеры панели считаются только у показанного окна
+    panel.set_result(Result(blocks, tr, source="en"))
+    app.processEvents()
     panel.grab().save(str(out / "panel.png"))
+    panel.hide()
+
+    # анимация для README: оригинал -> перевод -> оригинал
+    before = Image.open(out / "before.png").convert("RGB")
+    after = Image.open(out / "after.png").convert("RGB")
+    frames, durations = [], []
+    for k in range(0, 11):
+        frames.append(Image.blend(before, after, k / 10))
+        durations.append(1400 if k in (0, 10) else 60)
+    for k in range(9, 0, -1):
+        frames.append(Image.blend(before, after, k / 10))
+        durations.append(60)
+    small = [f.resize((800, 448), Image.LANCZOS) for f in frames]
+    small[0].save(out / "demo.gif", save_all=True, append_images=small[1:], duration=durations, loop=0,
+                  optimize=True)
 
 
 if __name__ == "__main__":
