@@ -7,7 +7,8 @@ import numpy as np
 from .settings import APP_DIR
 
 MODELS_DIR = APP_DIR / "models"
-RESCUE_SCRIPTS = ("korean", "eslav")  # чем «Авто» дораспознаёт строки, которые не прочитались
+# чем «Авто» дораспознаёт строки, которые основная модель не прочла (по убыванию популярности)
+RESCUE_SCRIPTS = ("korean", "eslav", "el", "arabic", "th", "devanagari")
 
 
 @dataclass
@@ -68,7 +69,8 @@ def group_lines(lines: list[Line]) -> list[Block]:
 def _looks_bad(line: Line) -> bool:
     x, y, w, h = line.box
     expected = w / (1.1 * max(h, 1))  # сколько символов примерно влезает в рамку
-    return line.score < 0.9 or len(line.text.strip()) < 0.45 * expected
+    letters = sum(ch.isalnum() for ch in line.text)  # знаки препинания не считаем: «: .» это мусор
+    return line.score < 0.9 or letters < 0.4 * expected
 
 
 class Engine:
@@ -126,6 +128,8 @@ class Engine:
                     cand = self._read(crop, alt, box)
                     if cand and cand.score > line.score + 0.05:
                         line = cand
+                    if line.score >= 0.95:
+                        break
             lines.append(line)
         return lines
 
@@ -133,7 +137,8 @@ class Engine:
         r = self._engine(script)(crop, use_det=False, use_cls=False, use_rec=True)
         if not r.txts or not r.txts[0].strip():
             return None
-        return Line(r.txts[0].strip(), box, float(r.scores[0]))
+        text = r.txts[0].strip()
+        return Line(text[::-1] if script == "arabic" else text, box, float(r.scores[0]))
 
 
 def _rect(poly) -> tuple[int, int, int, int]:

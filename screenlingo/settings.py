@@ -15,7 +15,7 @@ class Settings:
     hotkey_snap: str = "Alt+Q"
     hotkey_live: str = "Alt+W"
     font_size: int = 0  # 0 = подбирать под размер оригинала
-    opacity: float = 0.92
+    opacity: float = 1.0
     live_position: str = "over"  # over / below / above
     autostart: bool = False
 

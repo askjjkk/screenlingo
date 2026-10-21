@@ -35,7 +35,8 @@ def test_blank_image_gives_nothing(engine):
     assert engine.recognize(np.full((80, 300, 3), 30, np.uint8)) == []
 
 
-@pytest.mark.parametrize("text,font", [("새로운 게임 시작", "malgun.ttf"), ("Привет, как дела?", "arial.ttf")])
+@pytest.mark.parametrize("text,font", [("새로운 게임 시작", "malgun.ttf"), ("Привет, как дела?", "arial.ttf"),
+                                       ("Καλημέρα κόσμε", "arial.ttf"), ("สวัสดีชาวโลก", "tahoma.ttf")])
 def test_auto_rescues_other_scripts(engine, text, font):
     # в «Авто» корейский и русский тоже должны распознаваться (дораспознавание слабых строк)
     lines = engine.recognize(_render(text, font), "auto")

@@ -139,6 +139,20 @@ def test_google_falls_back_per_item_when_lines_mismatch(monkeypatch):
     assert g.translate(["a", "b"], "auto", "ru") == ["a!", "b!"]
 
 
+def test_google_parse_detected():
+    assert translate.GoogleTranslator.parse_detected([[["a", "b"]], None, "ja"]) == "ja"
+    assert translate.GoogleTranslator.parse_detected([[["a", "b"]]]) is None
+
+
+def test_cache_returns_detected_language():
+    class Detecting(FakeTranslator):
+        last_detected = "ja"
+
+    c = translate.CachedTranslator(Detecting())
+    assert c.translate_detect(["x", "y"], "auto", "ru") == (["ru:x", "ru:y"], "ja")
+    assert c.translate_detect(["x"], "auto", "ru") == (["ru:x"], "ja")  # из кэша язык тоже помнится
+
+
 def test_empty_input():
     assert translate.CachedTranslator(FakeTranslator()).translate([], "auto", "ru") == []
 
