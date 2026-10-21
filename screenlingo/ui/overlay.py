@@ -62,7 +62,7 @@ class TranslationOverlay(QWidget):
         self.scale = 1.0
         self.blocks, self.translations = [], []
         self.show_original = False
-        self.opacity = 0.92
+        self.opacity = 1.0
         self.font_px = 0
         self._layout = []  # кэш: (прямоугольник, цвет фона, цвет текста, шрифт, текст)
 
