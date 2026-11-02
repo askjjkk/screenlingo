@@ -67,3 +67,7 @@ Alt+Q ─► снимок экрана ─► RapidOCR (локально) ─►
 ## Лицензия
 
 MIT
+
+## Канал автора
+
+Новые проекты и обновления: [askjjkk projects в Telegram](https://t.me/askjjkkproject).
